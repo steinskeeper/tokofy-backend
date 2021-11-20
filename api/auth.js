@@ -36,7 +36,31 @@ router.get('/hello', (req, res) => {
     res.send('Auth!')
 })
 
-router.post("/login", async function (req, res, next) {
+router.post("/sellerlogin", async function (req, res, next) {
+    const { username, password } = req.body;
+    const user = await prisma.users.findUnique({
+        where: {
+            username: username,
+        },
+    });
+    if (user === null) {
+        res.json("User not in DB");
+    }
+    else {
+        if (user && (await bcrypt.compare(password, user.password))) {
+            res.status(200).json({
+                message: "success",
+                user: user,
+            });
+
+        } else {
+            res.json({
+                status: "Wrong Password",
+            });
+        }
+    }
+});
+router.post("/buyerlogin", async function (req, res, next) {
     const { username, password } = req.body;
     const user = await prisma.users.findUnique({
         where: {
