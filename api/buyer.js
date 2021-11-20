@@ -17,6 +17,7 @@ router.get("/allshops", async function (req, res) {
             },
 
         });
+        delete allusers.password
         res.json(allusers);
     } catch (err) {
         console.log(err);
@@ -39,6 +40,7 @@ router.get(
                     Items:true
                 }
             });
+            delete shop.password
             res.status(200).json({
                 message: "success",
                 shop: shop,
@@ -60,7 +62,6 @@ router.get(
                 where: {
                     id: parseInt(id),
                 },
-
             });
             res.status(200).json({
                 message: "success",
@@ -77,14 +78,15 @@ router.get(
 
 router.post("/placeorder", async function (req, res, next) {
     try {
-        const { user_id, item_id } = req.body;
+        const { user_id, item_id , seller_id} = req.body;
 
 
         const neworder = await prisma.orders.create({
             data: {
                 user_id: user_id,
                 item_id: item_id,
-                status: "Pending"
+                status: "Pending",
+                seller_id:seller_id
 
             },
         });

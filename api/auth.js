@@ -48,6 +48,7 @@ router.post("/sellerlogin", async function (req, res, next) {
     }
     else {
         if (user && (await bcrypt.compare(password, user.password))) {
+            delete user.password
             res.status(200).json({
                 message: "success",
                 user: user,
@@ -72,6 +73,7 @@ router.post("/buyerlogin", async function (req, res, next) {
     }
     else {
         if (user && (await bcrypt.compare(password, user.password))) {
+            delete user.password
             res.status(200).json({
                 message: "success",
                 user: user,

@@ -43,29 +43,31 @@ router.get(
     "/allorders/:id", async function (req, res) {
         const id = req.params.id;
         try {
-            const orders = await prisma.items.findMany({
+            const item = await prisma.orders.findMany({
                 where: {
-                    user_id: parseInt(id),
+                    seller_id: parseInt(id),
                 },
-                select: {
-                    name: true,
-                    Orders: {
-                        include: {
-                            user: {
-                                select: {
-                                    name: true,
-                                    location: true
-                                }
-                            }
+                include: {
+                    item: {
+                        select: {
+                            id: true,
+                            name: true,
+                        },
+                    
 
+                    },
+                    user:{
+                        select:{
+                            name: true,
                         }
+
                     }
                 }
 
             });
             res.status(200).json({
                 message: "success",
-                orders: orders,
+                orders: item,
             });
         } catch (err) {
             return res.json({
