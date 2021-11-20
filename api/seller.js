@@ -86,9 +86,9 @@ router.post('/additem', async function (req, res) {
             data: {
                 name: name,
                 desc: desc,
-                user_id: user_id,
+                user_id: parseInt(user_id),
                 quantity: 0,
-                price: price,
+                price: parseInt(price),
                 image: "https://www.ikea.com/in/en/images/products/gradvis-vase-pink__0524970_pe644685_s5.jpg",
 
             },
