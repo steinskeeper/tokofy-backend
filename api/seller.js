@@ -107,6 +107,69 @@ router.post('/additem', async function (req, res) {
 
 });
 
+router.get('/dashboard/:id', async function (req, res) {
+    try {
+        
+        const id = req.params.id;
+        const order = await prisma.orders.findMany({
+            where: {
+                seller_id: parseInt(id),
+            },
+            include: {
+                item: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                
+
+                },
+                user:{
+                    select:{
+                        name: true,
+                    }
+
+                }
+            }
+            
+
+        });
+        function group_by_month(data) {
+            var months = {}
+            for (var i=0; i<data.length; i++) {
+               var obj = data[i];
+               var date = new Date(obj.createdAt);
+               var month = date.getMonth();
+               if (months[month]) {
+                   months[month].push(obj);  
+               }
+               else {
+                   months[month] = [obj]; 
+               }
+            }
+            return months;
+         }
+        
+        
+         result = group_by_month(order);
+         console.log("Items of October are ", result[9].length)
+         console.log("Items of November are ", result[10].length)
+         let percent = ((result[10].length-result[9].length)/(result[9].length))*100
+        res.status(200).json({
+            status: "success",
+            percentage:percent
+            
+        });
+    }
+    catch (err) {
+        return res.json({
+            message: "error",
+            details: "Failed to Reterive Data",
+        });
+    }
+
+});
+
 router.post("/order-status", async function (req, res) {
     const { order_id, action } = req.body;
     console.log(req.body);
