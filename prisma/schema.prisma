@@ -11,7 +11,7 @@ model Users {
   user_id  Int      @id @default(autoincrement())
   role     String
   name     String
-  username String
+  username String @unique
   desc     String?
   category String?
   location String
@@ -26,7 +26,7 @@ model Items {
   id        Int      @id @default(autoincrement())
   name      String
   quantity  Int
-  desc      Int
+  desc      String
   price     Int
   image     String?
   user      Users    @relation(fields: [user_id], references: [user_id])
