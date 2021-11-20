@@ -4,9 +4,10 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 router.get('/hello', (req, res) => {
-    res.send('Hello World! Buyer')
+    res.send('Buyer!')
 })
 router.get("/allshops", async function (req, res) {
+    // Remove Pass from RES
     try {
         const allusers = await prisma.users.findMany({
             where: {
@@ -24,21 +25,102 @@ router.get("/allshops", async function (req, res) {
         });
     }
 });
+
 router.get(
     "/viewshop/:id", async function (req, res) {
         const id = req.params.id;
+        console.log(id)
         try {
             const shop = await prisma.users.findUnique({
                 where: {
-                    user_id: id,
+                    user_id: parseInt(id),
                 },
                 include:{
-                    Items:true,
-                },
+                    Items:true
+                }
             });
             res.status(200).json({
                 message: "success",
                 shop: shop,
+            });
+        } catch (err) {
+            return res.json({
+                message: "error",
+                details: "Failed to Reterive Data",
+            });
+        }
+    }
+);
+
+router.get(
+    "/viewitem/:id", async function (req, res) {
+        const id = req.params.id;
+        try {
+            const item = await prisma.items.findUnique({
+                where: {
+                    id: parseInt(id),
+                },
+
+            });
+            res.status(200).json({
+                message: "success",
+                item: item,
+            });
+        } catch (err) {
+            return res.json({
+                message: "error",
+                details: "Failed to Reterive Data",
+            });
+        }
+    }
+);
+
+router.post("/placeorder", async function (req, res, next) {
+    try {
+        const { user_id, item_id } = req.body;
+
+
+        const neworder = await prisma.orders.create({
+            data: {
+                user_id: user_id,
+                item_id: item_id,
+                status: "Pending"
+
+            },
+        });
+        res.status(200).json({
+            order: neworder,
+            message: "success",
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(200).json({
+            message: "Failed to Place Order",
+        });
+    }
+});
+
+router.get(
+    "/myorders/:id", async function (req, res) {
+        const id = req.params.id;
+        try {
+            const item = await prisma.orders.findMany({
+                where: {
+                    user_id: parseInt(id),
+                },
+                include: {
+                    item: {
+                        select: {
+                            id: true,
+                            name: true,
+                        }
+                    }
+                }
+
+            });
+            res.status(200).json({
+                message: "success",
+                orders: item,
             });
         } catch (err) {
             return res.json({

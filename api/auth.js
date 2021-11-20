@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 const bcrypt = require("bcryptjs");
 
 router.get('/hello', (req, res) => {
-    res.send('Hello World!')
+    res.send('Auth!')
 })
 
 router.post("/login", async function (req, res, next) {
@@ -34,7 +34,7 @@ router.post("/login", async function (req, res, next) {
 });
 router.post("/addbuyer", async function (req, res, next) {
     try {
-        const { username, password } = req.body;
+        const { username, password,name,location } = req.body;
         const encryptedPassword = await bcrypt.hash(password, 10);
 
         const newuser = await prisma.users.create({
@@ -42,6 +42,8 @@ router.post("/addbuyer", async function (req, res, next) {
                 username: username,
                 role: "buyer",
                 password: encryptedPassword,
+                name:name,
+                location:location
             },
         });
         res.status(200).json({
@@ -74,7 +76,7 @@ router.post("/addseller", async function (req, res, next) {
     } catch (err) {
         console.log(err);
         res.status(200).json({
-            message: "Failed to add Buyer",
+            message: "Failed to add Seller",
         });
     }
 });
