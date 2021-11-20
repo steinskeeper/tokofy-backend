@@ -78,30 +78,18 @@ router.get(
     }
 );
 
-router.post('/additem', [upload.any()], async function (req, res) {
+router.post('/additem', async function (req, res) {
     try {
-        const file = req.files;
-        console.log(file);
-        const item = JSON.parse(req.body.item);
-        console.log(item.name)
-
-        var date_now = new Date();
-        let dd = String(date_now.getDate()).padStart(2, "0")
-        let mm = String(date_now.getMonth() + 1).padStart(2, "0")
-        let yy = date_now.getFullYear()
-        let timestamp = dd + "-" + mm + "-" + yy + "";
-
-        const itemimg = file.slice(-1);
-        console.log(itemimg)
+        const { name, desc,user_id, price } = req.body;
 
         const it = await prisma.items.create({
             data: {
-                name: item.name,
-                desc: item.desc,
-                user_id: item.user_id,
-                quantity: item.quantity,
-                price: item.price,
-                image: itemimg[0].path,
+                name: name,
+                desc: desc,
+                user_id: user_id,
+                quantity: 0,
+                price: price,
+                image: "https://www.ikea.com/in/en/images/products/gradvis-vase-pink__0524970_pe644685_s5.jpg",
 
             },
         });

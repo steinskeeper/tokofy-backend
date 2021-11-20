@@ -83,10 +83,10 @@ router.post("/placeorder", async function (req, res, next) {
 
         const neworder = await prisma.orders.create({
             data: {
-                user_id: user_id,
-                item_id: item_id,
+                user_id: parseInt(user_id),
+                item_id: parseInt(item_id),
                 status: "Pending",
-                seller_id:seller_id
+                seller_id:parseInt(seller_id)
 
             },
         });
