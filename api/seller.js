@@ -53,11 +53,11 @@ router.get(
                             id: true,
                             name: true,
                         },
-                    
+
 
                     },
-                    user:{
-                        select:{
+                    user: {
+                        select: {
                             name: true,
                         }
 
@@ -80,7 +80,7 @@ router.get(
 
 router.post('/additem', async function (req, res) {
     try {
-        const { name, desc,user_id, price } = req.body;
+        const { name, desc, user_id, price } = req.body;
 
         const it = await prisma.items.create({
             data: {
@@ -109,12 +109,12 @@ router.post('/additem', async function (req, res) {
 
 router.get('/dashboard/:id', async function (req, res) {
     try {
-        
+
         const id = req.params.id;
         const order = await prisma.orders.findMany({
             where: {
                 seller_id: parseInt(id),
-                status:"Accepted"
+                status: "Accepted"
             },
             include: {
                 item: {
@@ -122,44 +122,44 @@ router.get('/dashboard/:id', async function (req, res) {
                         id: true,
                         name: true,
                     },
-                
+
 
                 },
-                user:{
-                    select:{
+                user: {
+                    select: {
                         name: true,
                     }
 
                 }
             }
-            
+
 
         });
         function group_by_month(data) {
             var months = {}
-            for (var i=0; i<data.length; i++) {
-               var obj = data[i];
-               var date = new Date(obj.updatedAt);
-               var month = date.getMonth();
-               if (months[month]) {
-                   months[month].push(obj);  
-               }
-               else {
-                   months[month] = [obj]; 
-               }
+            for (var i = 0; i < data.length; i++) {
+                var obj = data[i];
+                var date = new Date(obj.updatedAt);
+                var month = date.getMonth();
+                if (months[month]) {
+                    months[month].push(obj);
+                }
+                else {
+                    months[month] = [obj];
+                }
             }
             return months;
-         }
-        
-        
-         result = group_by_month(order);
-         console.log("Items of October are ", result[9].length)
-         console.log("Items of November are ", result[10].length)
-         let percent = ((result[10].length-result[9].length)/(result[9].length))*100
+        }
+
+
+        result = group_by_month(order);
+        console.log("Items of October are ", result[9].length)
+        console.log("Items of November are ", result[10].length)
+        let percent = ((result[10].length - result[9].length) / (result[9].length)) * 100
         res.status(200).json({
             status: "success",
-            percentage:percent
-            
+            percentage: percent
+
         });
     }
     catch (err) {
@@ -216,5 +216,29 @@ router.post("/order-status", async function (req, res) {
         }
     }
 });
+
+router.post('/prediction', async function (req, res) {
+    try {
+        const { month, item_id } = req.body;
+        var spawn = require("child_process").spawn;
+        var process = spawn('python', ["./pred.py",
+            item_id,
+            month]);
+        process.stdout.on('data', function (data) {
+            res.json(data.toString());
+        })
+
+
+    }
+    catch (err) {
+        return res.json({
+            message: "error",
+            details: "Failed to Reterive Data",
+        });
+    }
+
+});
+
+
 
 module.exports = router;
