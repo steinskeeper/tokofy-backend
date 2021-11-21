@@ -6,7 +6,11 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-dataset = pd.read_csv('./data.csv')
+dataset = pd.DataFrame([
+  { "ItemID": 2, "Sales": 2, "Month": 10 },
+  { "ItemID": 2, "Sales": 6, "Month": 11 }
+])
+
 testdata = pd.read_csv('./testdata.csv')
 data = dataset[['ItemID', 'Month', 'Sales']]
 X = data.iloc[:, :-1].values
@@ -17,5 +21,6 @@ X_train, X_test, y_train, y_test = train_test_split(
 regressor = RandomForestRegressor(n_estimators=10, random_state=0)
 regressor.fit(X_train, y_train)
 y_pred = regressor.predict([[sys.argv[1],sys.argv[2]]])
+
 print(y_pred)
 

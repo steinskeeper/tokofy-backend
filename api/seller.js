@@ -216,17 +216,98 @@ router.post("/order-status", async function (req, res) {
         }
     }
 });
+router.post("/prediction", async function (req, res) {
+    const {itemid,month} = req.body
+    console.log(itemid);
+    try {
+      const orders = await prisma.orders.findMany({});
+      //console.log(orders);
+      const roiOrders = orders.filter((item) => {
+        if (item["item_id"] === itemid) return item;
+      });
+      //console.log(roiOrders);
+      const test = roiOrders.reduce((acc, item) => {
+        //console.log(acc);
+        acc[item.createdAt.getMonth() + 1] = [
+          ...(acc[item.createdAt.getMonth() + 1] || []),
+          item,
+        ];
+        return acc;
+      }, {});
+      const keys = Object.keys(test);
+      console.log(keys); // 10 , 11
+      let finall = [];
+      for (let i = 0; i < keys.length; i++) {
+        const allOrdersMonth = test[keys[i]];
+        finall.push({
+          ItemID: itemid,
+          Sales: allOrdersMonth.length,
+          Month: parseInt(keys[i]),
+        });
+      }
+  
+      console.log(finall);
+      function convertToCSV(arr) {
+        const array = [Object.keys(arr[0])].concat(arr)
+      
+        return array.map(it => {
+          return Object.values(it).toString()
+        }).join('\n')
+      }
+      let csvdata = (JSON.stringify(finall))
+      console.log(csvdata)
+      var spawn = require("child_process").spawn;
+        var process = spawn('python', ["./pred.py",
+            itemid,
+            month,csvdata]);
+        process.stdout.on('data', function (data) {
+            res.json(data.toString());
+        })
 
+
+    } catch (err) {
+      console.log(err);
+      return res.json({
+        message: "error",
+        details: "Failed to Reterive Data",
+      });
+    }
+  });
+/*
 router.post('/prediction', async function (req, res) {
     try {
-        const { month, item_id } = req.body;
+        const { month, user_id, item_id } = req.body;
+        const allitems = await prisma.items.findMany({
+            where: {
+                user_id: user_id
+            },
+            include: {
+                Orders: true,
+            }
+
+
+        });
+        console.log(allitems)
+
+
         var spawn = require("child_process").spawn;
         var process = spawn('python', ["./pred.py",
             item_id,
             month]);
         process.stdout.on('data', function (data) {
-            res.json(data.toString());
+            console.log(data.toString());
         })
+        var result = allitems.map(item => 
+           
+
+            (
+
+            { item_id: item.id, sales: item.Orders.length, month: 10}));
+
+        console.log(result)
+        console.log(mon)
+        res.json(allitems)
+        
 
 
     }
@@ -237,7 +318,8 @@ router.post('/prediction', async function (req, res) {
         });
     }
 
-});
+});*/
+
 
 
 
