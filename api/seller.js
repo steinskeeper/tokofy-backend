@@ -114,6 +114,7 @@ router.get('/dashboard/:id', async function (req, res) {
         const order = await prisma.orders.findMany({
             where: {
                 seller_id: parseInt(id),
+                status:"Accepted"
             },
             include: {
                 item: {
@@ -138,7 +139,7 @@ router.get('/dashboard/:id', async function (req, res) {
             var months = {}
             for (var i=0; i<data.length; i++) {
                var obj = data[i];
-               var date = new Date(obj.createdAt);
+               var date = new Date(obj.updatedAt);
                var month = date.getMonth();
                if (months[month]) {
                    months[month].push(obj);  
